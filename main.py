@@ -48,15 +48,22 @@ def human_loop(chapter_id: str, version_id="v1"):
     if not result:
         return
 
+    metadata = {
+        "review": result.get("human_review", ""),
+        "editor": result.get("editor", "unknown"),
+        "timestamp": result.get("timestamp", ""),
+    }
+
     if result["status"] == "accepted":
-        add_version(chapter_id, version_id, "final", result["final_text"], "")
+        add_version(chapter_id, version_id, "final", result["final_text"], review=metadata["review"])
 
     elif result["status"] == "edited":
-        add_version(chapter_id, version_id, "human_edited", result["final_text"], "")
-        add_version(chapter_id, version_id, "final", result["final_text"], "")
+        add_version(chapter_id, version_id, "human_edited", result["final_text"], review=metadata["review"])
+        add_version(chapter_id, version_id, "final", result["final_text"], review=metadata["review"])
 
     elif result["status"] == "retry":
-        print("You can now re-run the spin + review steps for a new version.")
+        print("🔁 Prepare to generate a new rewrite version (v2, etc.)")
+
 
 if __name__ == "__main__":
     # Step 1: Scrape

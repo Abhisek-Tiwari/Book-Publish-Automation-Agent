@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 def human_review(chapter_id: str):
     spun_path = f"data/versions/{chapter_id}_spun.txt"
@@ -15,7 +16,7 @@ def human_review(chapter_id: str):
 
     print("\n--- Spun Chapter Text ---")
     print(spun_text)
-    print("\n--- AI Review ---")
+    print("\n --- AI Review ---")
     print(review_text)
 
     print("\nOptions:")
@@ -25,9 +26,21 @@ def human_review(chapter_id: str):
 
     choice = input("\nYour decision (1/2/3): ").strip()
 
+    editor_name = input("Enter your name or initials: ").strip()
+
+    human_notes = input("\nOptional: Add your review notes (press Enter to skip): ")
+
+    result = {
+        "status": "",
+        "final_text": "",
+        "human_review": human_notes,
+        "editor": editor_name,
+        "timestamp": datetime.now().isoformat()
+    }
+
     if choice == "1":
-        print("Accepted.")
-        return {"status": "accepted", "final_text": spun_text}
+        result["status"] = "accepted"
+        result["final_text"] = spun_text
 
     elif choice == "2":
         print("Enter your manual edits. Type 'END' on a new line when done.")
@@ -37,14 +50,15 @@ def human_review(chapter_id: str):
             if line.strip().upper() == "END":
                 break
             lines.append(line)
-        edited_text = "\n".join(lines)
-        print("Edited version saved.")
-        return {"status": "edited", "final_text": edited_text}
+        result["status"] = "edited"
+        result["final_text"] = "\n".join(lines)
 
     elif choice == "3":
-        print("Rewriting suggested.")
-        return {"status": "retry", "final_text": None}
+        result["status"] = "retry"
+        result["final_text"] = None
 
     else:
         print("Invalid choice.")
         return None
+
+    return result
