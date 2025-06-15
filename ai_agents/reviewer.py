@@ -5,7 +5,7 @@ load_dotenv()
 groq = Groq()
 GROQ_MODEL = "llama3-70b-8192"
 
-class AIReviewer:
+class ReviewerAgent:
     def __init__(self, model_name=GROQ_MODEL):
         self.model = model_name
         print(f"🧐 Using Groq model for review: {self.model}")

@@ -1,4 +1,4 @@
-from ai_agents.reviewer import AIReviewer
+from ai_agents.reviewer import ReviewerAgent
 import os
 
 def review_chapter(chapter_id: str):
@@ -12,7 +12,7 @@ def review_chapter(chapter_id: str):
     with open(spun_path, "r", encoding="utf-8") as f:
         rewritten_text = f.read()
 
-    reviewer = AIReviewer()
+    reviewer = ReviewerAgent()
     feedback = reviewer.review(original_text, rewritten_text)
 
     with open(review_path, "w", encoding="utf-8") as f:
@@ -40,10 +40,27 @@ def save_to_chroma(chapter_id: str):
     add_version(chapter_id, version_id="v1", stage="ai_spun", text=spun_text, review = "")
     add_version(chapter_id, version_id="v1", stage="ai_reviewed", text=spun_text, review=review_text)
 
+from interface.human_editor_cli import human_review
+
+def human_loop(chapter_id: str, version_id="v1"):
+    result = human_review(chapter_id)
+
+    if not result:
+        return
+
+    if result["status"] == "accepted":
+        add_version(chapter_id, version_id, "final", result["final_text"], "")
+
+    elif result["status"] == "edited":
+        add_version(chapter_id, version_id, "human_edited", result["final_text"], "")
+        add_version(chapter_id, version_id, "final", result["final_text"], "")
+
+    elif result["status"] == "retry":
+        print("You can now re-run the spin + review steps for a new version.")
 
 if __name__ == "__main__":
     # Step 1: Scrape
     chapter_url = "https://en.wikisource.org/wiki/The_Gates_of_Morning/Book_1/Chapter_1"
     chapter_id = "book1_chapter1"
     # scrape_chapter(chapter_url, chapter_id)
-    save_to_chroma(chapter_id)
+    human_loop(chapter_id)
