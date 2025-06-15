@@ -24,3 +24,10 @@ class WriterAgent:
         )
 
         return chat_completions.choices[0].message.content.strip()
+
+    def save_spun_version(chapter_id, version_id, text):
+        path = f"data/versions/{chapter_id}_{version_id}_spun.txt"
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(text)
+        print(f"✅ Spun version saved at {path}")
+

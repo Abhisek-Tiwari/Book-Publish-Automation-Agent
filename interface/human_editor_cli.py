@@ -1,9 +1,9 @@
 import os
 from datetime import datetime
 
-def human_review(chapter_id: str):
-    spun_path = f"data/versions/{chapter_id}_spun.txt"
-    review_path = f"data/reviews/{chapter_id}_review.txt"
+def human_review(chapter_id: str, version_id: str):
+    spun_path = f"data/versions/{chapter_id}_{version_id}_spun.txt"
+    review_path = f"data/reviews/{chapter_id}_{version_id}_review.txt"
 
     if not os.path.exists(spun_path) or not os.path.exists(review_path):
         print("Spun or review file not found.")
