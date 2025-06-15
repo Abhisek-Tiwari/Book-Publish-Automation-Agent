@@ -2,5 +2,10 @@ playwright
 beautifulsoup4
 requests
 chromadb
-openai
 tqdm
+transformers
+accelerate
+bitsandbytes
+groq
+dotenv
+sentence-transformers
