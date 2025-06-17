@@ -23,8 +23,6 @@ def review_chapter(chapter_id: str, version_id: str):
     feedback = reviewer.review(raw_text, spun_text)
     print(f"Text reviewed successfully with version: {version_id}")
 
-    spun_text = "\n\nReview by AI:\n"
-
     add_version(chapter_id, version_id, "ai_reviewed", spun_text, feedback)
     print(f"Review added to database with {version_id}")
 

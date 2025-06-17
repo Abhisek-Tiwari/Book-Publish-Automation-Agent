@@ -34,7 +34,7 @@ def add_version(chapter_id: str, version_id: str, stage: str, text: str, review:
 def add_raw_text(chapter_id: str, text: str):
     add_version(chapter_id=chapter_id, version_id= "v0", stage="raw", text=text)
 
-def get_version_text(chapter_id: str, version_id: str = None, stage: str = "original"):
+def get_version_text(chapter_id: str, version_id: str = None, stage: str = "raw"):
     if version_id:
         doc_id = f"{chapter_id}_{version_id}_{stage}"
     else:
@@ -44,6 +44,18 @@ def get_version_text(chapter_id: str, version_id: str = None, stage: str = "orig
     if result and result["documents"]:
         return result["documents"][0]
     raise ValueError(f"No version found for {doc_id}")
+
+def get_version_review(chapter_id: str, version_id: str, stage: str):
+    if version_id:
+        doc_id = f"{chapter_id}_{version_id}_{stage}"
+    else:
+        doc_id = f"{chapter_id}_v0_{stage}"
+
+    result = collection.get(ids=[doc_id])
+    if result and result["metadatas"]:
+        return result["metadatas"][0]["review"]
+    raise ValueError(f"No version found for {doc_id}")
+
 
 
 def get_collection():

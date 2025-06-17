@@ -1,7 +1,7 @@
 import gradio as gr
 from utils.scrapper import scrape_chapter
 from utils.common import spin_chapter, review_chapter, human_loop
-from storage.chroma_storage import get_version_text, add_raw_text
+from storage.chroma_storage import get_version_text, add_raw_text, get_version_review
 from utils.versioning import get_next_version
 
 # --- Logic Functions ---
@@ -29,6 +29,12 @@ def handle_text_upload(file, chapter_id):
 def fetch_version(chapter_id, version_id, stage):
     try:
         return get_version_text(chapter_id, version_id, stage)
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+def fetch_review(chapter_id, version_id, stage):
+    try:
+        return get_version_review(chapter_id, version_id, stage)
     except Exception as e:
         return f"Error: {str(e)}"
 
@@ -82,7 +88,9 @@ with gr.Blocks() as demo:
             fetch_stage = gr.Dropdown(choices=["raw", "spun", "ai_reviewed", "human_edited", "final"], value="spun", label="Stage")
         fetch_btn = gr.Button("Fetch Version")
         fetched_text = gr.Textbox(label="Fetched Text (Editable)", lines=20)
+        fetched_review = gr.Textbox(label="Fetched Review", lines=7)
         fetch_btn.click(fn=fetch_version, inputs=[fetch_chapter, fetch_version_id, fetch_stage], outputs=fetched_text)
+        fetch_btn.click(fn = fetch_review, inputs=[fetch_chapter, fetch_version_id, fetch_stage], outputs=fetched_review)
 
         gr.Markdown("## Human Feedback")
         decision = gr.Radio(choices=["accept", "edit", "retry"], label="Decision")
