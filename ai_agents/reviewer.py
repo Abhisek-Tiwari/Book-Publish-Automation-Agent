@@ -8,7 +8,7 @@ GROQ_MODEL = "llama3-70b-8192"
 class ReviewerAgent:
     def __init__(self, model_name=GROQ_MODEL):
         self.model = model_name
-        print(f"🧐 Using Groq model for review: {self.model}")
+        print(f"Using Groq model for review: {self.model}")
 
     def review(self, original: str, rewritten: str) -> str:
         system_prompt = "You are a detailed literary reviewer. Compare the rewritten passage to the original, and provide constructive feedback."

@@ -1,15 +1,21 @@
-import os
 import re
+from storage.chroma_storage import get_collection
 
-def get_next_version(chapter_id: str, path: str = "data/versions"):
-    version_pattern = re.compile(rf"{chapter_id}_v(\d+)_spun\.txt")
-    existing_versions = []
 
-    for fname in os.listdir(path):
-        match = version_pattern.match(fname)
+def get_next_version(chapter_id: str) -> str:
+    collection = get_collection()
+
+    results = collection.get(where={"chapter_id": chapter_id})
+    version_ids = []
+
+    for metadata in results["metadatas"]:
+        version_str = metadata.get("version_id", "")
+        match = re.match(r"v(\d+)", version_str)
         if match:
-            existing_versions.append(int(match.group(1)))
+            version_ids.append(int(match.group(1)))
 
-    next_version = max(existing_versions) + 1 if existing_versions else 1
-    return f"v{next_version}"
+    if not version_ids:
+        return "v1"
 
+    max_version = max(version_ids)
+    return f"v{max_version + 1}"

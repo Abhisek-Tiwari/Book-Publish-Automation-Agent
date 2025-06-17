@@ -1,18 +1,13 @@
-import os
 from datetime import datetime
+from storage.chroma_storage import get_version_text
 
 def human_review(chapter_id: str, version_id: str):
-    spun_path = f"data/versions/{chapter_id}_{version_id}_spun.txt"
-    review_path = f"data/reviews/{chapter_id}_{version_id}_review.txt"
-
-    if not os.path.exists(spun_path) or not os.path.exists(review_path):
-        print("Spun or review file not found.")
+    try:
+        spun_text = get_version_text(chapter_id, version_id, "spun")
+        review_text = get_version_text(chapter_id, version_id, "ai_reviewed")
+    except ValueError as e:
+        print(f"Error: {e}")
         return None
-
-    with open(spun_path, "r", encoding="utf-8") as f:
-        spun_text = f.read()
-    with open(review_path, "r", encoding="utf-8") as f:
-        review_text = f.read()
 
     print("\n--- Spun Chapter Text ---")
     print(spun_text)

@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
-import os
+from storage.chroma_storage import add_raw_text
 
 def scrape_chapter(url: str, chapter_id: str):
     """
@@ -10,7 +10,6 @@ def scrape_chapter(url: str, chapter_id: str):
     :return:
     """
     screenshot_path = f"data/screenshots/{chapter_id}.png"
-    text_path = f"data/raw/{chapter_id}.txt"
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
@@ -26,8 +25,7 @@ def scrape_chapter(url: str, chapter_id: str):
     content_div = soup.find("div", class_="mw-parser-output")
     paragraphs = content_div.find_all("p") if content_div else []
     text = "\n\n".join([p.getText().strip() for p in paragraphs if p.getText(strip=True)])
-
-    with open(text_path, "w", encoding="utf-8") as f:
-        f.write(text)
-
     print(f"Scraping of {chapter_id} is successful")
+
+    add_raw_text(chapter_id=chapter_id, text=text)
+    print("Text added to database")
