@@ -22,10 +22,10 @@ def add_version(chapter_id: str, version_id: str, stage: str, text: str, review:
         "review": review or "",
     }
 
-    collection.add(
-        documents = [text],
-        metadatas = [metadata],
-        ids = [doc_id],
+    collection.upsert(
+        documents=[text],
+        metadatas=[metadata],
+        ids=[doc_id],
     )
 
     print(f"Chapter Version: {chapter_id}/{version_id}/{stage} added successfully")
@@ -55,7 +55,6 @@ def get_version_review(chapter_id: str, version_id: str, stage: str):
     if result and result["metadatas"]:
         return result["metadatas"][0]["review"]
     raise ValueError(f"No version found for {doc_id}")
-
 
 
 def get_collection():

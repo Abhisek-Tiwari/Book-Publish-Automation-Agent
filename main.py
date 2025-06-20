@@ -1,6 +1,6 @@
 import gradio as gr
 from utils.scrapper import scrape_chapter
-from utils.common import spin_chapter, review_chapter, human_loop
+from utils.common import spin_chapter, review_chapter, edit_chapter
 from storage.chroma_storage import get_version_text, add_raw_text, get_version_review
 from utils.versioning import get_next_version
 
@@ -48,6 +48,7 @@ def hitl_review(chapter_id, version_id, final_text, decision, editor, notes):
             next_version = get_next_version(chapter_id)
             spin_chapter(chapter_id, next_version)
             review_chapter(chapter_id, next_version)
+            edit_chapter(chapter_id, next_version, "ai_reviewed")
             return f"Retrying with version: {next_version}"
         else:
             return "Invalid decision."
@@ -60,6 +61,13 @@ def hitl_review(chapter_id, version_id, final_text, decision, editor, notes):
 
     except Exception as e:
         return f"Error: {str(e)}"
+
+def edit_with_ai(chapter_id, version_id, stage):
+    try:
+        edit_chapter(chapter_id, version_id, stage)
+        return f"AI-based edit completed for version {version_id}"
+    except Exception as e:
+        return f"AI Edit Error: {str(e)}"
 
 # --- Gradio Interface ---
 with gr.Blocks() as demo:
@@ -85,7 +93,7 @@ with gr.Blocks() as demo:
         with gr.Row():
             fetch_chapter = gr.Textbox(label="Chapter ID")
             fetch_version_id = gr.Textbox(label="Version ID")
-            fetch_stage = gr.Dropdown(choices=["raw", "spun", "ai_reviewed", "human_edited", "final"], value="spun", label="Stage")
+            fetch_stage = gr.Dropdown(choices=["raw", "spun", "ai_reviewed", "ai_edited", "human_edited", "final"], value="spun", label="Stage")
         fetch_btn = gr.Button("Fetch Version")
         fetched_text = gr.Textbox(label="Fetched Text (Editable)", lines=20)
         fetched_review = gr.Textbox(label="Fetched Review", lines=7)
@@ -100,5 +108,9 @@ with gr.Blocks() as demo:
         review_status = gr.Textbox(label="Status")
         submit_btn.click(fn=hitl_review, inputs=[fetch_chapter, fetch_version_id, fetched_text, decision, editor, notes], outputs=review_status)
 
+        gr.Markdown("## Edit with AI")
+        ai_edit_btn = gr.Button("Run AI Editor")
+        ai_edit_output = gr.Textbox(label="AI Edit Status")
+        ai_edit_btn.click(fn=edit_with_ai, inputs=[fetch_chapter, fetch_version_id, fetch_stage], outputs=ai_edit_output)
 if __name__ == "__main__":
     demo.launch()

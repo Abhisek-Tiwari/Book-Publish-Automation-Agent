@@ -1,6 +1,7 @@
 from ai_agents.writer import WriterAgent
 from ai_agents.reviewer import ReviewerAgent
-from storage.chroma_storage import add_version, get_version_text
+from ai_agents.editor import EditorAgent
+from storage.chroma_storage import add_version, get_version_text, get_version_review
 from interface.human_editor_cli import human_review
 from utils.versioning import get_next_version
 
@@ -26,6 +27,16 @@ def review_chapter(chapter_id: str, version_id: str):
     add_version(chapter_id, version_id, "ai_reviewed", spun_text, feedback)
     print(f"Review added to database with {version_id}")
 
+def edit_chapter(chapter_id: str, version_id: str, stage: str = "ai_reviewed"):
+    spun_text = get_version_text(chapter_id, version_id, "spun")
+    review_text = get_version_review(chapter_id, version_id, stage)
+
+    editor = EditorAgent()
+    edited_text = editor.edit_text(spun_text, review_text)
+    print(f"Text edited successfully with version: {version_id}")
+
+    add_version(chapter_id, version_id, "ai_edited", edited_text)
+    print(f"Edited text added to database version: {version_id}")
 
 def human_loop(chapter_id: str, version_id: str):
     next_version = get_next_version(chapter_id)
